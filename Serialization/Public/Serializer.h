@@ -1,17 +1,9 @@
 #pragma once
 
+#include "SerializedTypeEnum.h"
+
 namespace RTCL
 {
-	enum class SerializedType
-	{
-		kInt,
-		kLong,
-		kFloat,
-		kDouble,
-		kCharPointer,
-		kString
-	};
-
 	class Serializer
 	{
 	public:
