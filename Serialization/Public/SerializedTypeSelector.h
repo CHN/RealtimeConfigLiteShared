@@ -9,7 +9,7 @@ namespace RTCL
 	template<typename T>
 	struct SerializedTypeSelector
 	{
-		static constexpr SerializedType type = "Type is not implemented";
+		static_assert(std::is_same_v<T, T*> && "Type is not implemented");
 	};
 
 	template<>
