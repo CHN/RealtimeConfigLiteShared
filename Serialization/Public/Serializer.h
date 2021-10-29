@@ -11,22 +11,25 @@ namespace RTCL
 	{
 	public:
 
-		static std::vector<char> SerializeByEnumType(SerializedType enumType, void* pointer);
+		using PointerType = const char;
+		using DataType = std::vector<char>;
+
+		static DataType SerializeByEnumType(SerializedType enumType, PointerType* pointer);
 
 	private:
 
-		static std::vector<char> SerializeInt(void* pointer);
-		static std::vector<char> SerializeLong(void* pointer);
-		static std::vector<char> SerializeFloat(void* pointer);
-		static std::vector<char> SerializeDouble(void* pointer);
-		static std::vector<char> SerializeCharPointer(void* pointer);
-		static std::vector<char> SerializeString(void* pointer);
+		static void SerializeInt(PointerType* pointer, DataType* data); // Should be int32_t or int64_t
+		static void SerializeLong(PointerType* pointer, DataType* data);
+		static void SerializeFloat(PointerType* pointer, DataType* data);
+		static void SerializeDouble(PointerType* pointer, DataType* data);
+		static void SerializeCharPointer(PointerType* pointer, DataType* data);
+		static void SerializeString(PointerType* pointer, DataType* data);
 
-		static std::vector<char> SerializeBySize(void* pointer, size_t size);
+		static void SerializeBySize(PointerType* pointer, size_t size, DataType* data);
 
-		using SerializeFunctionType = std::vector<char>(*)(void*);
+		using SerializeFunctionType = void(*)(PointerType*, DataType*);
 
-		static constexpr SerializeFunctionType serializeFunctions[6] =
+		static constexpr SerializeFunctionType serializeFunctions[] =
 		{
 			SerializeInt,
 			SerializeLong,

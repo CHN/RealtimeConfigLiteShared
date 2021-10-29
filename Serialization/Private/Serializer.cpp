@@ -1,51 +1,53 @@
 #include "Serializer.h"
 
-std::vector<char> RTCL::Serializer::SerializeByEnumType(SerializedType enumType, void* pointer)
+RTCL::Serializer::DataType RTCL::Serializer::SerializeByEnumType(SerializedType enumType, PointerType* pointer)
 {
-	return serializeFunctions[static_cast<int>(enumType)](pointer);
+	std::vector<char> data;
+	SerializeInt((PointerType*)&enumType, &data);
+	serializeFunctions[static_cast<int>(enumType)](pointer, &data);
+
+	return data;
 }
 
-std::vector<char> RTCL::Serializer::SerializeInt(void* pointer)
+void RTCL::Serializer::SerializeInt(PointerType* pointer, DataType* data)
 {
-	return SerializeBySize(pointer, sizeof(int));
+	SerializeBySize(pointer, sizeof(int), data);
 }
 
-std::vector<char> RTCL::Serializer::SerializeLong(void* pointer)
+void RTCL::Serializer::SerializeLong(PointerType* pointer, DataType* data)
 {
-	return SerializeBySize(pointer, sizeof(long));
+	SerializeBySize(pointer, sizeof(long), data);
 }
 
-std::vector<char> RTCL::Serializer::SerializeFloat(void* pointer)
+void RTCL::Serializer::SerializeFloat(PointerType* pointer, DataType* data)
 {
-	return SerializeBySize(pointer, sizeof(float));
+	SerializeBySize(pointer, sizeof(float), data);
 }
 
-std::vector<char> RTCL::Serializer::SerializeDouble(void* pointer)
+void RTCL::Serializer::SerializeDouble(PointerType* pointer, DataType* data)
 {
-	return SerializeBySize(pointer, sizeof(double));
+	SerializeBySize(pointer, sizeof(double), data);
 }
 
-std::vector<char> RTCL::Serializer::SerializeCharPointer(void* pointer)
+void RTCL::Serializer::SerializeCharPointer(PointerType* pointer, DataType* data)
 {
 	auto** const recoveredValue = (char**)pointer;
 
-	return SerializeBySize(*recoveredValue, std::strlen(*recoveredValue));
+	SerializeBySize(*recoveredValue, std::strlen(*recoveredValue), data);
 }
 
-std::vector<char> RTCL::Serializer::SerializeString(void* pointer)
+void RTCL::Serializer::SerializeString(PointerType* pointer, DataType* data)
 {
-	auto* const recoveredValue = static_cast<std::string*>(pointer);
+	auto* const recoveredValue = (std::string*)pointer;
 
-	return SerializeBySize((void*)recoveredValue->c_str(), recoveredValue->length());
+	SerializeBySize(recoveredValue->c_str(), recoveredValue->length(), data);
 }
 
-std::vector<char> RTCL::Serializer::SerializeBySize(void* pointer, size_t size)
+void RTCL::Serializer::SerializeBySize(PointerType* pointer, size_t size, DataType* data)
 {
-	std::vector<char> data(size);
+	std::copy(&size, &size + sizeof(size_t), data->begin());
 
-	auto* charPointer = static_cast<char* const>(pointer);
+	data->reserve(data->size() + size);
 
-	std::copy(charPointer, charPointer + size, data.begin());
-
-	return data;
+	std::copy(pointer, pointer + size, data->begin());
 }
