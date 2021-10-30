@@ -16,18 +16,16 @@ namespace RTCL
 		template<typename T>
 		void AddData(T* pointer)
 		{
-			AddDataInternal(pointer, SerializedTypeSelector<T*>::enumType);
+			AddData(pointer, SerializedTypeSelector<T*>::enumType);
 		}
+
+		void AddData(Serializer::PointerType* pointer, SerializedType type);
 
 		const std::vector<char>& GetSerializedData() const;
 	
 	private:
 
-		void AddDataInternal(Serializer::PointerType* pointer, SerializedType type);
-
 		std::vector<char> serializedDataVector;
 	};
-
-	
 }
 

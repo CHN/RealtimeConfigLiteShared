@@ -3,7 +3,13 @@
 RTCL::Serializer::DataType RTCL::Serializer::SerializeByEnumType(SerializedType enumType, PointerType* pointer)
 {
 	std::vector<char> data;
-	SerializeInt((PointerType*)&enumType, &data);
+
+	data.resize(sizeof(enumType));
+
+	auto* enumTypePointer = (PointerType*)&enumType;
+
+	std::copy(enumTypePointer, enumTypePointer + sizeof(enumType), data.begin());
+
 	serializeFunctions[static_cast<int>(enumType)](pointer, &data);
 
 	return data;
@@ -23,7 +29,7 @@ void RTCL::Serializer::SerializeFloat(PointerType* pointer, DataType* data)
 {
 	SerializeBySize(pointer, sizeof(float), data);
 }
-
+ 
 void RTCL::Serializer::SerializeDouble(PointerType* pointer, DataType* data)
 {
 	SerializeBySize(pointer, sizeof(double), data);
@@ -45,9 +51,10 @@ void RTCL::Serializer::SerializeString(PointerType* pointer, DataType* data)
 
 void RTCL::Serializer::SerializeBySize(PointerType* pointer, size_t size, DataType* data)
 {
-	std::copy(&size, &size + sizeof(size_t), data->begin());
+	data->reserve(data->size() + sizeof(size) + size);
 
-	data->reserve(data->size() + size);
+	auto* sizePointer = (char*)&size;
+	data->insert(data->end(), sizePointer, sizePointer + sizeof(size));
 
-	std::copy(pointer, pointer + size, data->begin());
+	data->insert(data->end(), pointer, pointer + size);
 }
